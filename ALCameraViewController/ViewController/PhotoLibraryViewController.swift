@@ -17,7 +17,7 @@ public typealias PhotoLibraryViewSelectionComplete = (asset: PHAsset?) -> Void
 
 public class PhotoLibraryViewController: UIViewController {
     
-    private var assets: PHFetchResult? = nil
+    private var assets: PHFetchResult<PHAsset>?
     
     public var onSelectionComplete: PhotoLibraryViewSelectionComplete?
     
@@ -27,11 +27,11 @@ public class PhotoLibraryViewController: UIViewController {
         layout.itemSize = CameraGlobals.shared.photoLibraryThumbnailSize
         layout.minimumInteritemSpacing = defaultItemSpacing
         layout.minimumLineSpacing = defaultItemSpacing
-        layout.sectionInset = UIEdgeInsetsZero
+        layout.sectionInset = .zero
       
         let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = UIColor.clear()
+        collectionView.backgroundColor = UIColor.clear
         return collectionView
     }()
     
@@ -42,7 +42,7 @@ public class PhotoLibraryViewController: UIViewController {
         
         let buttonImage = UIImage(named: "libraryCancel", in: CameraGlobals.shared.bundle, compatibleWith: nil)?.withRenderingMode(UIImageRenderingMode.alwaysOriginal)
         
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: buttonImage, style: UIBarButtonItemStyle.plain, target: self, action: #selector(dismiss))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: buttonImage, style: UIBarButtonItemStyle.plain, target: self, action: #selector(dismissViewController))
         
         view.backgroundColor = UIColor(white: 0.2, alpha: 1)
         view.addSubview(collectionView)
@@ -58,22 +58,22 @@ public class PhotoLibraryViewController: UIViewController {
         collectionView.frame = view.bounds
     }
     
-    public override func preferredStatusBarStyle() -> UIStatusBarStyle {
-        return UIStatusBarStyle.lightContent
+    override public var preferredStatusBarStyle: UIStatusBarStyle {
+        get { return .lightContent }
     }
     
     public func present(_ inViewController: UIViewController, animated: Bool) {
         let navigationController = UINavigationController(rootViewController: self)
-        navigationController.navigationBar.barTintColor = UIColor.black()
+        navigationController.navigationBar.barTintColor = UIColor.black
         navigationController.navigationBar.barStyle = UIBarStyle.black
         inViewController.present(navigationController, animated: animated, completion: nil)
     }
     
-    public func dismiss() {
+    @objc public func dismissViewController() {
         onSelectionComplete?(asset: nil)
     }
     
-    private func onSuccess(_ photos: PHFetchResult<AnyObject>) {
+    private func onSuccess(_ photos: PHFetchResult<PHAsset>) {
         assets = photos
         configureCollectionView()
     }
@@ -93,7 +93,7 @@ public class PhotoLibraryViewController: UIViewController {
     }
     
     private func itemAtIndexPath(_ indexPath: IndexPath) -> PHAsset? {
-        return assets?[(indexPath as NSIndexPath).row] as? PHAsset
+        return assets?[(indexPath as NSIndexPath).row]
     }
 }
 
@@ -103,7 +103,8 @@ extension PhotoLibraryViewController : UICollectionViewDataSource {
         return assets?.count ?? 0
     }
     
-    public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+    public func collectionView(collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+
         if cell is ImageCell {
             if let model = itemAtIndexPath(indexPath) {
                 (cell as! ImageCell).configureWithModel(model)

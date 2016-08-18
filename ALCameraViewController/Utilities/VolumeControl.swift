@@ -29,8 +29,8 @@ public class VolumeControl {
         self.onVolumeChange = onVolumeChange
         configureInView(view)
         
-        guard try? AVAudioSession.sharedInstance().setActive(true) else {
-            return nil
+        guard ((try? AVAudioSession.sharedInstance().setActive(true)) != nil) else {
+            return
         }
         
         NotificationCenter.default.addObserver(self, selector: #selector(volumeChanged), name: NSNotification.Name(rawValue: changeKey), object: nil)
@@ -48,7 +48,7 @@ public class VolumeControl {
         view.sendSubview(toBack: volumeView)
     }
     
-    func volumeChanged() {
+    @objc func volumeChanged() {
         guard let slider = volumeView.subviews.filter({ $0 is UISlider }).first as? UISlider else { return }
         let volume = AVAudioSession.sharedInstance().outputVolume
         slider.setValue(volume, animated: false)

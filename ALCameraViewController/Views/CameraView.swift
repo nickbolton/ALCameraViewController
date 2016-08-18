@@ -17,7 +17,7 @@ public class CameraView: UIView {
     var imageOutput: AVCaptureStillImageOutput!
     var preview: AVCaptureVideoPreviewLayer!
     
-    let cameraQueue = DispatchQueue(label: "com.zero.ALCameraViewController.Queue", attributes: DispatchQueueAttributes.serial)
+    let cameraQueue = DispatchQueue(label: "com.zero.ALCameraViewController.Queue")
     
     let focusView = CropOverlay(frame: CGRect(x: 0, y: 0, width: 80, height: 80))
     
@@ -165,7 +165,7 @@ public class CameraView: UIView {
                 }
             }
             
-            let orientation = AVCaptureVideoOrientation(rawValue: UIDevice.current().orientation.rawValue)!
+            let orientation = AVCaptureVideoOrientation(rawValue: UIDevice.current.orientation.rawValue)!
             takePhoto(self.imageOutput, videoOrientation: orientation, cropSize: self.frame.size) { image in
                 DispatchQueue.main.async {
                     self.isUserInteractionEnabled = true
@@ -246,7 +246,7 @@ public class CameraView: UIView {
         guard preview != nil else {
             return
         }
-        switch UIApplication.shared().statusBarOrientation {
+        switch UIApplication.shared.statusBarOrientation {
             case .portrait:
               preview?.connection.videoOrientation = AVCaptureVideoOrientation.portrait
               break

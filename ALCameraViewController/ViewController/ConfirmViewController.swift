@@ -36,18 +36,18 @@ public class ConfirmViewController: UIViewController, UIScrollViewDelegate {
         super.init(coder: aDecoder)
     }
     
-    public override func prefersStatusBarHidden() -> Bool {
-        return true
+    override public var prefersStatusBarHidden: Bool {
+        get { return true }
     }
     
-    public override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation {
-        return UIStatusBarAnimation.slide
+    override public var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
+        get { return .slide }
     }
     
     public override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = UIColor.black()
+        view.backgroundColor = UIColor.black
         
         scrollView.addSubview(imageView)
         scrollView.delegate = self
