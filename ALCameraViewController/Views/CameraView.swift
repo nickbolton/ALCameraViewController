@@ -17,21 +17,19 @@ public class CameraView: UIView {
     var imageOutput: AVCaptureStillImageOutput!
     var preview: AVCaptureVideoPreviewLayer!
     
-    let cameraQueue = DispatchQueue(label: "com.zero.ALCameraViewController.Queue")
-    
     let focusView = CropOverlay(frame: CGRect(x: 0, y: 0, width: 80, height: 80))
     
     public var currentPosition = AVCaptureDevicePosition.back
     
     public func startSession() {
-        cameraQueue.async {
+        DispatchQueue.main.async {
             self.createSession()
             self.session?.startRunning()
         }
     }
     
     public func stopSession() {
-        cameraQueue.async {
+        DispatchQueue.main.async {
             self.session?.stopRunning()
             self.preview?.removeFromSuperlayer()
             
@@ -155,7 +153,7 @@ public class CameraView: UIView {
     
     public func capturePhoto(_ completion: CameraShotCompletion) {
         isUserInteractionEnabled = false
-        cameraQueue.async {
+        DispatchQueue.global().async {
             
             var i = 0
             

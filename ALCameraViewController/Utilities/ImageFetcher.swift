@@ -26,8 +26,6 @@ public class ImageFetcher {
     private var authRequested = false
     private let errorDomain = "com.zero.imageFetcher"
     
-    let libraryQueue = DispatchQueue(label: "com.zero.ALCameraViewController.LibraryQueue")
-    
     public init() { }
     
     public func onSuccess(_ success: ImageFetcherSuccess) -> Self {
@@ -54,7 +52,7 @@ public class ImageFetcher {
     private func onAuthorized() {
         let options = PHFetchOptions()
         options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        libraryQueue.async {
+        DispatchQueue.global().async {
             let assets = PHAsset.fetchAssets(with: PHAssetMediaType.image, options: options)
             DispatchQueue.main.async {
                 self.success?(assets: assets)
