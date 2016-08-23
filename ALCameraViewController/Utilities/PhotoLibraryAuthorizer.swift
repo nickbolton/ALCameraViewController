@@ -9,7 +9,7 @@
 import UIKit
 import Photos
 
-public typealias PhotoLibraryAuthorizerCompletion = (_ error: NSError?) -> Void
+public typealias PhotoLibraryAuthorizerCompletion = (error: NSError?) -> Void
 
 class PhotoLibraryAuthorizer {
 
@@ -23,7 +23,7 @@ class PhotoLibraryAuthorizer {
     
     func onDeniedOrRestricted() {
         let error = errorWithKey("error.access-denied", domain: errorDomain)
-        completionHandler?(error)
+        completionHandler?(error: error)
     }
     
     func handleAuthorization(status: PHAuthorizationStatus) {
@@ -33,7 +33,7 @@ class PhotoLibraryAuthorizer {
             break
         case .authorized:
             DispatchQueue.main.async {
-                self.completionHandler?(nil)
+                self.completionHandler?(error: nil)
             }
             break
         case .denied, .restricted:

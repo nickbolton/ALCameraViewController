@@ -13,11 +13,11 @@ internal let ImageCellIdentifier = "ImageCell"
 
 internal let defaultItemSpacing: CGFloat = 1
 
-public typealias PhotoLibraryViewSelectionComplete = (_ asset: PHAsset?) -> Void
+public typealias PhotoLibraryViewSelectionComplete = (asset: PHAsset?) -> Void
 
 public class PhotoLibraryViewController: UIViewController {
     
-    var assets: PHFetchResult<PHAsset>?
+    private var assets: PHFetchResult<PHAsset>?
     
     public var onSelectionComplete: PhotoLibraryViewSelectionComplete?
     
@@ -70,7 +70,7 @@ public class PhotoLibraryViewController: UIViewController {
     }
     
     @objc public func dismissViewController() {
-        onSelectionComplete?(nil)
+        onSelectionComplete?(asset: nil)
     }
     
     private func onSuccess(_ photos: PHFetchResult<PHAsset>) {
@@ -92,18 +92,18 @@ public class PhotoLibraryViewController: UIViewController {
         collectionView.dataSource = self
     }
     
-    func itemAtIndexPath(_ indexPath: IndexPath) -> PHAsset? {
+    private func itemAtIndexPath(_ indexPath: IndexPath) -> PHAsset? {
         return assets?[(indexPath as NSIndexPath).row]
     }
 }
 
 // MARK: - UICollectionViewDataSource -
-extension PhotoLibraryViewController : UICollectionViewDataSource {
+extension PhotoLibraryViewController : UICollectionViewDataSource, UICollectionViewDelegate {
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return assets?.count ?? 0
     }
     
-    public func collectionView(collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+    public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
 
         if cell is ImageCell {
             if let model = itemAtIndexPath(indexPath) {
@@ -119,7 +119,7 @@ extension PhotoLibraryViewController : UICollectionViewDataSource {
 
 // MARK: - UICollectionViewDelegate -
 extension PhotoLibraryViewController : UICollectionViewDelegateFlowLayout {
-    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        onSelectionComplete?(itemAtIndexPath(indexPath))
+    @objc(collectionView:didSelectItemAtIndexPath:) public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        onSelectionComplete?(asset: itemAtIndexPath(indexPath))
     }
 }

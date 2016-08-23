@@ -110,7 +110,7 @@ public class CameraView: UIView {
     
     private func createPreview() {
         device = cameraWithPosition(currentPosition)
-        if let device = device , device.hasFlash {
+        if let device = device where device.hasFlash {
             do {
                 try device.lockForConfiguration()
                 device.flashMode = .auto
@@ -175,7 +175,7 @@ public class CameraView: UIView {
     
     public func focusCamera(_ toPoint: CGPoint) -> Bool {
         
-        guard let device = device , device.isFocusModeSupported(.continuousAutoFocus) else {
+        guard let device = device where device.isFocusModeSupported(.continuousAutoFocus) else {
             return false
         }
         
@@ -195,7 +195,7 @@ public class CameraView: UIView {
     }
     
     public func cycleFlash() {
-        guard let device = device , device.hasFlash else {
+        guard let device = device where device.hasFlash else {
             return
         }
         
@@ -214,7 +214,7 @@ public class CameraView: UIView {
 
     public func swapCameraInput() {
         
-        guard let session = session, let input = input else {
+        guard let session = session, input = input else {
             return
         }
         
