@@ -110,12 +110,14 @@ public class CameraView: UIView {
     
     private func createPreview() {
         device = cameraWithPosition(currentPosition)
-        if let device = device where device.hasFlash {
-            do {
-                try device.lockForConfiguration()
-                device.flashMode = .auto
-                device.unlockForConfiguration()
-            } catch _ {}
+        if let device = device {
+            if device.hasFlash {
+                do {
+                    try device.lockForConfiguration()
+                    device.flashMode = .auto
+                    device.unlockForConfiguration()
+                } catch _ {}
+            }
         }
         
         let outputSettings = [AVVideoCodecKey: AVVideoCodecJPEG]
@@ -151,7 +153,7 @@ public class CameraView: UIView {
         return devices.filter { $0.position == position }.first
     }
     
-    public func capturePhoto(_ completion: CameraShotCompletion) {
+    public func capturePhoto(_ completion: @escaping CameraShotCompletion) {
         isUserInteractionEnabled = false
         DispatchQueue.global().async {
             
@@ -175,7 +177,11 @@ public class CameraView: UIView {
     
     public func focusCamera(_ toPoint: CGPoint) -> Bool {
         
-        guard let device = device where device.isFocusModeSupported(.continuousAutoFocus) else {
+        guard let device = device else {
+            return false
+        }
+        
+        if !device.isFocusModeSupported(.continuousAutoFocus) {
             return false
         }
         
@@ -195,7 +201,12 @@ public class CameraView: UIView {
     }
     
     public func cycleFlash() {
-        guard let device = device where device.hasFlash else {
+        
+        guard let device = device else {
+            return
+        }
+
+        if !device.hasFlash {
             return
         }
         
@@ -214,7 +225,7 @@ public class CameraView: UIView {
 
     public func swapCameraInput() {
         
-        guard let session = session, input = input else {
+        guard let session = session, let input = input else {
             return
         }
         

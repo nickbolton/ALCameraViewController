@@ -9,8 +9,8 @@
 import UIKit
 import Photos
 
-public typealias SingleImageSaverSuccess = (asset: PHAsset) -> Void
-public typealias SingleImageSaverFailure = (error: NSError) -> Void
+public typealias SingleImageSaverSuccess = (_ asset: PHAsset) -> Void
+public typealias SingleImageSaverFailure = (_ error: Error) -> Void
 
 public class SingleImageSaver {
     private let errorDomain = "com.zero.singleImageSaver"
@@ -22,12 +22,12 @@ public class SingleImageSaver {
     
     public init() { }
     
-    public func onSuccess(_ success: SingleImageSaverSuccess) -> Self {
+    public func onSuccess(_ success: @escaping SingleImageSaverSuccess) -> Self {
         self.success = success
         return self
     }
     
-    public func onFailure(_ failure: SingleImageSaverFailure) -> Self {
+    public func onFailure(_ failure: @escaping SingleImageSaverFailure) -> Self {
         self.failure = failure
         return self
     }
@@ -43,7 +43,7 @@ public class SingleImageSaver {
             if error == nil {
                 self._save()
             } else {
-                self.failure?(error: error!)
+                self.failure?(error!)
             }
         }
 
@@ -64,12 +64,20 @@ public class SingleImageSaver {
                 assetIdentifier = request.placeholderForCreatedAsset
             }) { finished, error in
                 
-                guard let assetIdentifier = assetIdentifier where finished else {
-                    self.invokeFailure()
+                if error != nil {
+                    self.failure?(error!)
                     return
                 }
                 
-                self.fetch(assetIdentifier)
+                if finished {
+                    guard let assetIdentifier = assetIdentifier else {
+                        self.invokeFailure()
+                        return
+                    }
+                    self.fetch(assetIdentifier)
+                } else {
+                    self.invokeFailure()
+                }
         }
     }
     
@@ -83,12 +91,12 @@ public class SingleImageSaver {
                 return
             }
             
-            self.success?(asset: asset)
+            self.success?(asset)
         }
     }
     
     private func invokeFailure() {
         let error = errorWithKey("error.cant-fetch-photo", domain: errorDomain)
-        failure?(error: error)
+        failure?(error)
     }
 }

@@ -13,11 +13,11 @@ internal let ImageCellIdentifier = "ImageCell"
 
 internal let defaultItemSpacing: CGFloat = 1
 
-public typealias PhotoLibraryViewSelectionComplete = (asset: PHAsset?) -> Void
+public typealias PhotoLibraryViewSelectionComplete = (_ asset: PHAsset?) -> Void
 
 public class PhotoLibraryViewController: UIViewController {
     
-    private var assets: PHFetchResult<PHAsset>?
+    private (set) var assets: PHFetchResult<PHAsset>?
     
     public var onSelectionComplete: PhotoLibraryViewSelectionComplete?
     
@@ -70,7 +70,7 @@ public class PhotoLibraryViewController: UIViewController {
     }
     
     @objc public func dismissViewController() {
-        onSelectionComplete?(asset: nil)
+        onSelectionComplete?(nil)
     }
     
     private func onSuccess(_ photos: PHFetchResult<PHAsset>) {
@@ -92,7 +92,7 @@ public class PhotoLibraryViewController: UIViewController {
         collectionView.dataSource = self
     }
     
-    private func itemAtIndexPath(_ indexPath: IndexPath) -> PHAsset? {
+    internal func itemAtIndexPath(_ indexPath: IndexPath) -> PHAsset? {
         return assets?[(indexPath as NSIndexPath).row]
     }
 }
@@ -120,6 +120,6 @@ extension PhotoLibraryViewController : UICollectionViewDataSource, UICollectionV
 // MARK: - UICollectionViewDelegate -
 extension PhotoLibraryViewController : UICollectionViewDelegateFlowLayout {
     @objc(collectionView:didSelectItemAtIndexPath:) public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        onSelectionComplete?(asset: itemAtIndexPath(indexPath))
+        onSelectionComplete?(itemAtIndexPath(indexPath))
     }
 }
