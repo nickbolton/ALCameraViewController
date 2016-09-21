@@ -26,6 +26,14 @@ public class ConfirmViewController: UIViewController, UIScrollViewDelegate {
     
     var asset: PHAsset!
     
+    public init(assetID: String, allowsCropping: Bool) {
+        self.allowsCropping = allowsCropping
+        
+        let results = PHAsset.fetchAssets(withLocalIdentifiers: [assetID], options: nil)
+        self.asset = results.firstObject
+        super.init(nibName: "ConfirmViewController", bundle: CameraGlobals.shared.bundle)
+    }
+    
     public init(asset: PHAsset, allowsCropping: Bool) {
         self.allowsCropping = allowsCropping
         self.asset = asset
