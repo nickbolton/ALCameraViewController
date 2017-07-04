@@ -60,6 +60,33 @@ public class ConfirmViewController: UIViewController, UIScrollViewDelegate {
         get { return .slide }
     }
     
+    private func setupControlsBackgroundView() {
+        let effect = UIBlurEffect(style: .light)
+        let blurView = UIVisualEffectView(effect: effect)
+        blurView.translatesAutoresizingMaskIntoConstraints = false
+        view.insertSubview(blurView, belowSubview: confirmButton)
+        
+        [.left, .right, .bottom].forEach({
+            view.addConstraint(NSLayoutConstraint(
+                item: blurView,
+                attribute: $0,
+                relatedBy: .equal,
+                toItem: view,
+                attribute: $0,
+                multiplier: 1.0,
+                constant: 0))
+        })
+        
+        blurView.addConstraint(NSLayoutConstraint(
+            item: blurView,
+            attribute: .height,
+            relatedBy: .equal,
+            toItem: nil,
+            attribute: .notAnAttribute,
+            multiplier: 1.0,
+            constant: 100.0))
+    }
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -70,6 +97,8 @@ public class ConfirmViewController: UIViewController, UIScrollViewDelegate {
         scrollView.maximumZoomScale = 1
         
         cropOverlay.isHidden = true
+        
+        setupControlsBackgroundView()
         
         if let image = image {
             self.configureWithImage(image)
