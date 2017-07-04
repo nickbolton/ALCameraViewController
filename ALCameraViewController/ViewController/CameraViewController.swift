@@ -56,24 +56,14 @@ public class CameraViewController: UIViewController {
     var animationSpring: CGFloat = 0.5
     var rotateAnimation: UIViewAnimationOptions = .curveLinear
     
+    var controlsContainerHeightConstraint: NSLayoutConstraint?
+    
     var cameraButtonEdgeConstraint: NSLayoutConstraint?
     var cameraButtonGravityConstraint: NSLayoutConstraint?
     
     var closeButtonEdgeConstraint: NSLayoutConstraint?
     var closeButtonGravityConstraint: NSLayoutConstraint?
-    
-    var containerButtonsEdgeOneConstraint: NSLayoutConstraint?
-    var containerButtonsEdgeTwoConstraint: NSLayoutConstraint?
-    var containerButtonsGravityConstraint: NSLayoutConstraint?
-    
-    var swapButtonEdgeOneConstraint: NSLayoutConstraint?
-    var swapButtonEdgeTwoConstraint: NSLayoutConstraint?
-    var swapButtonGravityConstraint: NSLayoutConstraint?
-    
-    var libraryButtonEdgeOneConstraint: NSLayoutConstraint?
-    var libraryButtonEdgeTwoConstraint: NSLayoutConstraint?
-    var libraryButtonGravityConstraint: NSLayoutConstraint?
-    
+        
     var flashButtonEdgeConstraint: NSLayoutConstraint?
     var flashButtonGravityConstraint: NSLayoutConstraint?
     
@@ -82,6 +72,18 @@ public class CameraViewController: UIViewController {
     var cameraOverlayWidthConstraint: NSLayoutConstraint?
     var cameraOverlayCenterConstraint: NSLayoutConstraint?
     
+    var libraryControlContainerEdgeConstraintOne: NSLayoutConstraint?
+    var libraryControlContainerEdgeConstraintTwo: NSLayoutConstraint?
+    var libraryControlContainerEdgeConstraintThree: NSLayoutConstraint?
+    var libraryControlContainerEdgeConstraintFour: NSLayoutConstraint?
+
+    var cameraFlipControlContainerEdgeConstraintOne: NSLayoutConstraint?
+    var cameraFlipControlContainerEdgeConstraintTwo: NSLayoutConstraint?
+    var cameraFlipControlContainerEdgeConstraintThree: NSLayoutConstraint?
+    var cameraFlipControlContainerEdgeConstraintFour: NSLayoutConstraint?
+
+    let headerHeight: CGFloat = 44.0
+
     let cameraView : CameraView = {
         let cameraView = CameraView()
         cameraView.translatesAutoresizingMaskIntoConstraints = false
@@ -92,6 +94,47 @@ public class CameraViewController: UIViewController {
         let cameraOverlay = CropOverlay()
         cameraOverlay.translatesAutoresizingMaskIntoConstraints = false
         return cameraOverlay
+    }()
+    
+    let headerVibrantView: UIVisualEffectView = {
+        let vibrantView = UIVisualEffectView()
+        let effect = UIBlurEffect(style: .light)
+        vibrantView.effect = effect
+        vibrantView.translatesAutoresizingMaskIntoConstraints = false
+        return vibrantView
+    }()
+    
+    let headerContainer: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isUserInteractionEnabled = true
+        return view
+    }()
+    
+    let controlsVibrantView: UIVisualEffectView = {
+        let vibrantView = UIVisualEffectView()
+        let effect = UIBlurEffect(style: .light)
+        vibrantView.effect = effect
+        vibrantView.translatesAutoresizingMaskIntoConstraints = false
+        return vibrantView
+    }()
+    
+    let controlsContainer: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    let libraryControlContainer: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    let cameraFlipControlContainer: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
     
     let cameraButton : UIButton = {
@@ -112,10 +155,8 @@ public class CameraViewController: UIViewController {
     let closeButton : UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(named: "closeButton",
-            in: CameraGlobals.shared.bundle,
-            compatibleWith: nil),
-                        for: UIControlState())
+        button.setTitle("Cancel", for: .normal)
+        button.titleLabel?.font = UIFont(name: "Cadiz-Bold", size: 16.0)
         return button
     }()
     
@@ -149,12 +190,6 @@ public class CameraViewController: UIViewController {
         return button
     }()
     
-    let containerSwapLibraryButton : UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-  
     public init(croppingEnabled: Bool, allowsLibraryAccess: Bool = true, completion: @escaping CameraViewCompletion) {
         super.init(nibName: nil, bundle: nil)
         onCompletion = completion
@@ -189,12 +224,14 @@ public class CameraViewController: UIViewController {
         super.loadView()
         view.backgroundColor = UIColor.black
         [cameraView,
-            cameraOverlay,
-            cameraButton,
-            closeButton,
-            flashButton,
-            containerSwapLibraryButton].forEach({ self.view.addSubview($0) })
-        [swapButton, libraryButton].forEach({ containerSwapLibraryButton.addSubview($0) })
+         cameraOverlay,
+         headerContainer,
+         controlsContainer].forEach({ self.view.addSubview($0) })
+        [headerVibrantView, closeButton].forEach({ self.headerContainer.addSubview($0) })
+        [controlsVibrantView, cameraButton, libraryControlContainer, cameraFlipControlContainer].forEach({ self.controlsContainer.addSubview($0) })
+        
+        [swapButton].forEach({ cameraFlipControlContainer.addSubview($0) })
+        [libraryButton].forEach({ libraryControlContainer.addSubview($0) })
         view.setNeedsUpdateConstraints()
     }
     
@@ -210,33 +247,24 @@ public class CameraViewController: UIViewController {
 
         if !didUpdateViews {
             configCameraViewConstraints()
+            configHeaderContainerStaticConstraints()
+            configControlsContainerStaticConstraints()
             didUpdateViews = true
         }
         
         let statusBarOrientation = UIApplication.shared.statusBarOrientation
         let portrait = statusBarOrientation.isPortrait
+
+//        removeCameraOverlayContainerConstraints()
+//        configCameraOverlayContainerConstraints(portrait)
+
+        configControlsContainerConstraints(statusBarOrientation)
         
         configCameraButtonEdgeConstraint(statusBarOrientation)
         configCameraButtonGravityConstraint(portrait)
-        
-        removeCloseButtonConstraints()
-        configCloseButtonEdgeConstraint(statusBarOrientation)
-        configCloseButtonGravityConstraint(statusBarOrientation)
-        
-        removeContainerConstraints()
-        configContainerEdgeConstraint(statusBarOrientation)
-        configContainerGravityConstraint(statusBarOrientation)
-        
-        removeSwapButtonConstraints()
-        configSwapButtonEdgeConstraint(statusBarOrientation)
-        configSwapButtonGravityConstraint(portrait)
-
-        removeLibraryButtonConstraints()
-        configLibraryEdgeButtonConstraint(statusBarOrientation)
-        configLibraryGravityButtonConstraint(portrait)
-        
-        configFlashEdgeButtonConstraint(statusBarOrientation)
-        configFlashGravityButtonConstraint(statusBarOrientation)
+                        
+//        configFlashEdgeButtonConstraint(statusBarOrientation)
+//        configFlashGravityButtonConstraint(statusBarOrientation)
         
         let padding : CGFloat = portrait ? 16.0 : -16.0
         removeCameraOverlayEdgesConstraints()
@@ -244,6 +272,9 @@ public class CameraViewController: UIViewController {
         configCameraOverlayEdgeTwoConstraint(portrait, padding: padding)
         configCameraOverlayWidthConstraint(portrait)
         configCameraOverlayCenterConstraint(portrait)
+        
+        configLibraryContainerEdgeConstraints(portrait)
+        configCameraSwapContainerEdgeConstraints(portrait)
         
         rotate(statusBarOrientation)
         
@@ -354,7 +385,9 @@ public class CameraViewController: UIViewController {
         cameraButton.action = { [weak self] in self?.capturePhoto() }
         swapButton.action = { [weak self] in self?.swapCamera() }
         libraryButton.action = { [weak self] in self?.showLibrary() }
-        closeButton.action = { [weak self] in self?.close() }
+        closeButton.action = {
+            [weak self] in self?.close()
+        }
         flashButton.action = { [weak self] in self?.toggleFlash() }
     }
     

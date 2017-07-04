@@ -58,12 +58,6 @@ public class CameraView: UIView {
         addSubview(focusView)
         
         focusView.isHidden = true
-        
-        let lines = focusView.horizontalLines + focusView.verticalLines + focusView.outerLines
-        
-        lines.forEach { line in
-            line.alpha = 0
-        }
     }
     
     internal func focus(_ gesture: UITapGestureRecognizer) {

@@ -2,18 +2,18 @@
   "images" : [
     {
       "idiom" : "universal",
-      "scale" : "1x",
-      "filename" : "confirmButton.png"
+      "filename" : "camera_confirm.png",
+      "scale" : "1x"
     },
     {
       "idiom" : "universal",
-      "scale" : "2x",
-      "filename" : "confirmButton@2x.png"
+      "filename" : "camera_confirm@2x.png",
+      "scale" : "2x"
     },
     {
       "idiom" : "universal",
-      "scale" : "3x",
-      "filename" : "confirmButton@3x.png"
+      "filename" : "camera_confirm@3x.png",
+      "scale" : "3x"
     }
   ],
   "info" : {
